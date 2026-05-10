@@ -3,6 +3,10 @@ import cors from 'cors'
 import routes from './routes/index.route'
 import dotenv from 'dotenv'
 dotenv.config()
+import { connectDB } from './configs/database.config'
+
+// Kết nối đến MongoDB
+connectDB();
 
 const app = express()
 const port = 4000
