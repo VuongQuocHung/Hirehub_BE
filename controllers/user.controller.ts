@@ -88,7 +88,7 @@ export const loginPost = async (req: Request, res: Response) => {
       maxAge: (1 * 24 * 60 * 60 * 1000) * 7, // 7 ngày
       httpOnly: true, // Chỉ cho phép cookie được truy cận bởi server
       sameSite: 'lax', // cho phép truy cập khi khác tên miền
-      secure: false
+      secure: process.env.NODE_ENV === 'production' ? true: false // true: web là https, false: web là http
     })
   
     res.json({
@@ -100,7 +100,7 @@ export const loginPost = async (req: Request, res: Response) => {
     console.log(error);
     res.json({
       code: "error",
-      message: "Đăng ký thất bại"
+      message: "Đăng nhập thất bại"
     })
   }
 }
