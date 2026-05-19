@@ -58,3 +58,34 @@ export const registerPost = (req: Request, res: Response, next: NextFunction) =>
   } 
   next();
 }
+
+export const loginPost = (req: Request, res: Response, next: NextFunction) => {
+  const schema = Joi.object({
+    email: Joi.string()
+    .required()
+    .email()
+    .messages({
+      "string.empty": "Vui lòng nhập email",
+      "string.email": "Email không đúng định dạng"
+    }),
+    password: Joi
+    .string()
+    .required()
+    .min(8)
+    .messages({
+      "string.min": "Mật khẩu phải chứa ít nhất 8 ký tự!",
+    }),
+  })
+  const { error } = schema.validate(req.body);
+  if(error){
+    const errorMessage = error.details[0].message;
+    res.json({
+      code: "error",
+      message: errorMessage,
+    });
+    return;
+  } 
+  next();
+}
+
+    
