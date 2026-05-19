@@ -16,6 +16,7 @@ app.use(cors({
   origin: process.env.DOMAIN_FE, // Sử dụng biến môi trường
   methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Cho phép các phương thức HTTP cần thiết
   allowedHeaders: ['Content-Type', 'Authorization'], // Cho phép các header cần thiết
+  credentials: true
 }))
 
 // Cho phép gửi data dang JSON trong body của request

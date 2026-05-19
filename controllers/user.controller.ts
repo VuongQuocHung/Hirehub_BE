@@ -87,7 +87,8 @@ export const loginPost = async (req: Request, res: Response) => {
     res.cookie("token", token, {
       maxAge: (1 * 24 * 60 * 60 * 1000) * 7, // 7 ngày
       httpOnly: true, // Chỉ cho phép cookie được truy cận bởi server
-      sameSite: 'strict', // chỉ cho phép truy cập khi cùng tên miền
+      sameSite: 'lax', // cho phép truy cập khi khác tên miền
+      secure: false
     })
   
     res.json({
