@@ -77,7 +77,8 @@ export const loginPost = async (req: Request, res: Response) => {
     const token = jwt.sign(
       {
         id: existAccount.id,
-        email: existAccount.email
+        email: existAccount.email,
+        type: "user"
       }, 
       `${process.env.JWT_SECRET}`,
       {

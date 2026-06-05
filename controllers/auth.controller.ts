@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import jwt from 'jsonwebtoken'
 import AccountUser from "../models/account-user.model";
+import AccountCompany from "../models/account-company.model";
 
 export const check = async (req: Request, res: Response) => {
   try {
@@ -14,30 +15,54 @@ export const check = async (req: Request, res: Response) => {
       return;
     }
     const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) as jwt.JwtPayload;
-    const {id, email} = decoded;
-    const existAccount = await AccountUser.findOne({
-      _id: id,
-      email: email
-    });
-    if(!existAccount){
-      res.clearCookie('token');
-      res.json({
-        code: "error",
-        message: "Tài khoản không tồn tại"
+    const {id, email, type} = decoded;
+    if(type === "user"){
+      const existAccount = await AccountUser.findOne({
+        _id: id,
+        email: email
       });
-      return;
-    }
+      if(!existAccount){
+        res.clearCookie('token');
+        res.json({
+          code: "error",
+          message: "Tài khoản không tồn tại"
+        });
+        return;
+      }
+      const infoUser = {
+        id: existAccount.id,
+        fullName: existAccount.fullName,
+      }
 
-    const infoUser = {
-      id: existAccount.id,
-      fullName: existAccount.fullName,
-    }
+      res.json({
+        code: "success",
+        message: "Thành công",
+        infoUser: infoUser,
+      });
+    } else if(type === "company"){
+      const existAccount = await AccountCompany.findOne({
+        _id: id,
+        email: email
+      });
+      if(!existAccount){
+        res.clearCookie('token');
+        res.json({
+          code: "error",
+          message: "Tài khoản không tồn tại"
+        });
+        return;
+      }
+      const infoCompany = {
+        id: existAccount.id,
+        companyName: existAccount.companyName,
+      }
 
-    res.json({
-      code: "success",
-      message: "Thành công",
-      infoUser: infoUser,
-    });
+      res.json({
+        code: "success",
+        message: "Thành công",
+        infoCompany: infoCompany,
+      });
+    }
   } catch (error) {
     console.log(error);
     res.json({
