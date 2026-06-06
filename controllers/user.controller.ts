@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import AccountUser from "../models/account-user.model";
+import { AccountRequest } from "../interfaces/request.interface";
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
@@ -103,5 +104,57 @@ export const loginPost = async (req: Request, res: Response) => {
       code: "error",
       message: "Đăng nhập thất bại"
     })
+  }
+}
+
+export const profilePatch = async (req: AccountRequest, res: Response) => {
+  try {
+    const existEmail = await AccountUser.findOne({
+      email: req.body.email,
+      _id: { $ne: req.account.id }
+    });
+
+    if(existEmail) {
+      res.json({
+        code: "error",
+        message: "Email đã tồn tại trong hệ thống!"
+      });
+      return;
+    }
+
+    await AccountUser.updateOne({
+      _id: req.account.id
+    }, req.body);
+
+    // Tạo chuỗi bảo mật JWT
+    const token = jwt.sign(
+      {
+        id: req.account.id,
+        email: req.body.email,
+        type: "user"
+      },
+      `${process.env.JWT_SECRET}`,
+      {
+        expiresIn: "1d" // token có hiệu lực trong 1 ngày
+      }
+    );
+  
+    res.cookie("token", token, {
+      maxAge: (1 * 24 * 60 * 60 * 1000), // 1 ngày
+      httpOnly: true, // Chỉ cho phép cookie được truy cập bởi server
+      sameSite: "lax", // Cho phép gửi cookie gữa các tên miền khác nhau
+      secure: process.env.NODE_ENV === "production" ? true : false // true: web là https, false: web là http
+    });
+
+    res.json({
+      code: "success",
+      message: "Cập nhật thành công!"
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ!"
+    });
   }
 }

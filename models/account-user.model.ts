@@ -8,6 +8,7 @@ const schema = new mongoose.Schema(
     status: String,  // "initial": khởi tạo, "active": hoạt động, "inactive": tạm dừng
     googleId: { type: String, default: '' },
     avatar: String,
+    phone: String,
   },
   {
     timestamps: true
