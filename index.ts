@@ -10,7 +10,7 @@ import cookieParser from 'cookie-parser'
 connectDB();
 
 const app = express()
-const port = 4000
+const port = process.env.PORT || 4000;
 
 // Cấu hình CORS 
 app.use(cors({
