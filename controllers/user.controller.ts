@@ -6,12 +6,12 @@ const jwt = require('jsonwebtoken');
 
 export const registerPost = async (req: Request, res: Response) => {
   try {
-    const {fullName, email, password} = req.body;
+    const { fullName, email, password } = req.body;
     const existAccount = await AccountUser.findOne({
       email: email
     });
 
-    if(existAccount){
+    if (existAccount) {
       res.json({
         code: "error",
         message: "Email đã tồn tại trong hệ thống!"
@@ -33,7 +33,7 @@ export const registerPost = async (req: Request, res: Response) => {
     });
 
     await newAccount.save();
-    
+
     // hàm của express: chuyển js sang json và trả về cho frontend json
     res.json({
       code: "success",
@@ -50,13 +50,13 @@ export const registerPost = async (req: Request, res: Response) => {
 
 export const loginPost = async (req: Request, res: Response) => {
   try {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
     const existAccount = await AccountUser.findOne({
       email: email
     });
 
-    if(!existAccount){
+    if (!existAccount) {
       res.json({
         code: "error",
         message: 'Email không tồn tại'
@@ -65,22 +65,22 @@ export const loginPost = async (req: Request, res: Response) => {
     }
     // Kiểm tra mật khẩu khớp hay không
     const isPasswordValid = await bcrypt.compare(password, `${existAccount.password}`);
-  
-    if(!isPasswordValid){
+
+    if (!isPasswordValid) {
       res.json({
         code: "error",
         message: 'Mật khẩu không đúng'
       });
       return;
     }
-  
+
     // Tạo chuỗi bảo mật JWT 
     const token = jwt.sign(
       {
         id: existAccount.id,
         email: existAccount.email,
         type: "user"
-      }, 
+      },
       `${process.env.JWT_SECRET}`,
       {
         expiresIn: "7d" // token có hiệu lực trong 7 ngày hoặc 1 ngày
@@ -90,9 +90,9 @@ export const loginPost = async (req: Request, res: Response) => {
       maxAge: (1 * 24 * 60 * 60 * 1000) * 7, // 7 ngày
       httpOnly: true, // Chỉ cho phép cookie được truy cận bởi server
       sameSite: 'lax', // cho phép truy cập khi khác tên miền
-      secure: process.env.NODE_ENV === 'production' ? true: false // true: web là https, false: web là http
+      secure: process.env.NODE_ENV === 'production' ? true : false // true: web là https, false: web là http
     })
-  
+
     res.json({
       code: "success",
       message: "Đăng nhập thành công!"
@@ -114,13 +114,15 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
       _id: { $ne: req.account.id }
     });
 
-    if(existEmail) {
+    if (existEmail) {
       res.json({
         code: "error",
         message: "Email đã tồn tại trong hệ thống!"
       });
       return;
     }
+
+    req.body.avatar = req.file ? req.file.path : "";
 
     await AccountUser.updateOne({
       _id: req.account.id
@@ -138,7 +140,7 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
         expiresIn: "1d" // token có hiệu lực trong 1 ngày
       }
     );
-  
+
     res.cookie("token", token, {
       maxAge: (1 * 24 * 60 * 60 * 1000), // 1 ngày
       httpOnly: true, // Chỉ cho phép cookie được truy cập bởi server

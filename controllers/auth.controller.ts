@@ -6,8 +6,8 @@ import AccountCompany from "../models/account-company.model";
 export const check = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.token;
-    
-    if(!token){
+
+    if (!token) {
       res.json({
         code: "error",
         message: "Bạn chưa đăng nhập"
@@ -15,13 +15,13 @@ export const check = async (req: Request, res: Response) => {
       return;
     }
     const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) as jwt.JwtPayload;
-    const {id, email, type} = decoded;
-    if(type === "user"){
+    const { id, email, type } = decoded;
+    if (type === "user") {
       const existAccount = await AccountUser.findOne({
         _id: id,
         email: email
       });
-      if(!existAccount){
+      if (!existAccount) {
         res.clearCookie('token');
         res.json({
           code: "error",
@@ -33,7 +33,8 @@ export const check = async (req: Request, res: Response) => {
         id: existAccount.id,
         fullName: existAccount.fullName,
         email: existAccount.email,
-        phone: existAccount.phone
+        phone: existAccount.phone,
+        avatar: existAccount.avatar
       }
 
       res.json({
@@ -41,12 +42,12 @@ export const check = async (req: Request, res: Response) => {
         message: "Thành công",
         infoUser: infoUser,
       });
-    } else if(type === "company"){
+    } else if (type === "company") {
       const existAccount = await AccountCompany.findOne({
         _id: id,
         email: email
       });
-      if(!existAccount){
+      if (!existAccount) {
         res.clearCookie('token');
         res.json({
           code: "error",
@@ -80,8 +81,8 @@ export const logout = async (req: Request, res: Response) => {
     res.json({
       code: "success",
       message: "Đăng xuất thành công"
-    }); 
-    
+    });
+
   } catch (error) {
     console.log(error);
     res.json({
