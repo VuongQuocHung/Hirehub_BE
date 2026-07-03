@@ -4,8 +4,17 @@ const schema = new mongoose.Schema(
   {
     companyName: String,
     email: String,
-    password: String, 
+    password: String,
     status: String,  // "initial": khởi tạo, "active": hoạt động, "inactive": tạm dừng
+    cityName: String,
+    address: String,
+    companyModel: String,
+    companyEmployees: String,
+    workingTime: String,
+    workOvertime: String,
+    phone: String,
+    description: String,
+    logo: String
   },
   {
     timestamps: true
