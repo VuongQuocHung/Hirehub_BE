@@ -3,6 +3,7 @@ import AccountCompany from "../models/account-company.model";
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 import { AccountRequest } from "../interfaces/request.interface";
+import Job from "../models/job.model";
 
 export const registerPost = async (req: Request, res: Response) => {
   try {
@@ -157,6 +158,36 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
     res.json({
       code: "error",
       message: "Cập nhật thông tin thất bại"
+    })
+  }
+}
+
+export const createJobPost = async (req: AccountRequest, res: Response) => {
+  try {
+    req.body.companyId = req.account.id;
+    req.body.salaryMin = req.body.salaryMin ? parseInt(req.body.salaryMin) : 0;
+    req.body.salaryMax = req.body.salaryMax ? parseInt(req.body.salaryMax) : 0;
+    req.body.technologies = req.body.technologies ? req.body.technologies.split(", ") : [];
+    req.body.images = [];
+    if (req.files) {
+      for (const item of req.files as any[]) {
+        req.body.images.push(item.path);
+      }
+    }
+    const newRecord = new Job(req.body);
+    await newRecord.save();
+
+    res.json({
+      code: "success",
+      message: "Đã tạo công việc!"
+    });
+
+
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Tạo bài đăng thất bại"
     })
   }
 }
