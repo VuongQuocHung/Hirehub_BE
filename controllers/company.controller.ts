@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 import { AccountRequest } from "../interfaces/request.interface";
 import Job from "../models/job.model";
+import City from "../models/city.model";
 
 export const registerPost = async (req: Request, res: Response) => {
   try {
@@ -188,6 +189,52 @@ export const createJobPost = async (req: AccountRequest, res: Response) => {
     res.json({
       code: "error",
       message: "Tạo bài đăng thất bại"
+    })
+  }
+}
+
+export const listJob = async (req: AccountRequest, res: Response) => {
+  try {
+    const companyId = req.account.id;
+
+    const jobList = await Job.find({
+      companyId: companyId
+    });
+
+    const dataFinal = [];
+
+    const city = await City.findOne({
+      _id: req.account.city
+    });
+
+    for (const job of jobList) {
+      const data = {
+        id: job.id,
+        companyLogo: req.account.logo,
+        title: job.title,
+        companyName: req.account.companyName,
+        salaryMin: job.salaryMin,
+        salaryMax: job.salaryMax,
+        position: job.position,
+        workingForm: job.workingForm,
+        cityName: city?.name,
+        technologies: job.technologies,
+      }
+
+      dataFinal.push(data);
+
+    }
+
+    res.json({
+      code: "success",
+      message: "Đã lấy danh sách công việc!",
+      jobs: dataFinal
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Lấy danh sách công việc thất bại"
     })
   }
 }
