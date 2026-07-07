@@ -197,9 +197,25 @@ export const listJob = async (req: AccountRequest, res: Response) => {
   try {
     const companyId = req.account.id;
 
-    const jobList = await Job.find({
-      companyId: companyId
-    });
+    const find = {
+      companyId : companyId
+    }
+
+    // Phân trang
+    const page = req.query.page ? parseInt(`${req.query.page}`) : 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    const totalRecord = await Job.countDocuments(find);
+    const totalPage = Math.ceil(totalRecord/limit);
+    // Hết phân trang
+    
+    const jobList = await Job
+      .find(find)
+      .limit(limit)
+      .skip(skip)
+      .sort({
+        createAt: "desc"
+      })
 
     const dataFinal = [];
 
@@ -228,7 +244,8 @@ export const listJob = async (req: AccountRequest, res: Response) => {
     res.json({
       code: "success",
       message: "Đã lấy danh sách công việc!",
-      jobs: dataFinal
+      jobs: dataFinal,
+      totalPage: totalPage
     });
   } catch (error) {
     console.log(error);
