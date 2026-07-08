@@ -334,3 +334,35 @@ export const editJobPatch = async (req: AccountRequest, res: Response) => {
     });
   }
 }
+
+export const deleteJobDel = async (req: AccountRequest, res: Response) => {
+  try {
+    const compnanyId = req.account.id;
+    const jobId = req.params.id;
+
+    const jobDetail = await Job.findOne({
+      _id: jobId,
+      companyId: compnanyId
+    });
+
+    if(!jobDetail) {
+      res.json({
+        code: "error",
+        message: "Id không hợp lệ!"
+      });
+      return;
+    }
+
+    await Job.deleteOne({
+      _id: jobId
+    });
+
+    res.json({
+      code: "success",
+      message: "Đã xóa công việc!"
+    })
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
