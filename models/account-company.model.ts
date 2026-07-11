@@ -6,7 +6,7 @@ const schema = new mongoose.Schema(
     email: String,
     password: String,
     status: String,  // "initial": khởi tạo, "active": hoạt động, "inactive": tạm dừng
-    cityName: String,
+    city: String,
     address: String,
     companyModel: String,
     companyEmployees: String,

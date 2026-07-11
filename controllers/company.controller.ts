@@ -75,6 +75,7 @@ export const loginPost = async (req: Request, res: Response) => {
       return;
     }
 
+
     // Tạo chuỗi bảo mật JWT 
     const token = jwt.sign(
       {
@@ -365,4 +366,42 @@ export const deleteJobDel = async (req: AccountRequest, res: Response) => {
     console.log(error);
     
   }
+}
+
+export const list = async (req: AccountRequest, res: Response) => {
+  let limitItems = 12;
+  if(req.query.limitItems){
+    limitItems = parseInt(`${req.query.limitItems}`);
+  }
+  const companyList = await AccountCompany
+    .find({})
+    .limit(limitItems)
+  
+  const companyListFinal = [];
+
+  for(const item of companyList){
+    const city = await City.findOne({
+      _id: item.city
+    })
+
+    const totalJob = await Job.countDocuments({
+      companyId: item.id
+    })
+
+    const dataFinal = {
+      id: item.id,
+      logo: item.logo,
+      companyName: item.companyName,
+      cityName: city?.name,
+      totalJob: totalJob
+    }
+    companyListFinal.push(dataFinal)
+  }
+
+  res.json({
+    code: "success",
+    message: "Danh sách công ty!",
+    companyList: companyListFinal
+  })
+
 }

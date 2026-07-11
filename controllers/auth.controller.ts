@@ -59,7 +59,7 @@ export const check = async (req: Request, res: Response) => {
         id: existAccount.id,
         companyName: existAccount.companyName,
         email: existAccount.email,
-        city: existAccount.cityName,
+        city: existAccount.city,
         address: existAccount.address,
         companyModel: existAccount.companyModel,
         companyEmployees: existAccount.companyEmployees,
@@ -77,6 +77,16 @@ export const check = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
+    const errorName = error instanceof Error ? error.name : "";
+    if (errorName === "JsonWebTokenError" || errorName === "TokenExpiredError") {
+      res.clearCookie('token');
+      res.json({
+        code: "error",
+        message: "Token khong hop le"
+      });
+      return;
+    }
+
     console.log(error);
     res.json({
       code: "error",
