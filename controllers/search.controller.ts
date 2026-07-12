@@ -9,8 +9,8 @@ export const search = async (req: Request, res: Response) => {
 
     if(Object.keys(req.query).length > 0){
       const find: any = {};
-      if(req.query.language) {
-        find.technologies = req.query.language;
+      if(req.query.technology) {
+        find.technologies = req.query.technology;
       }
 
       if(req.query.city){
@@ -28,6 +28,14 @@ export const search = async (req: Request, res: Response) => {
           find.companyId = { $in: companyIdList }; // $in: bên trong
         }
       }
+
+      if(req.query.company) {
+        const company = await AccountCompany.findOne({
+          companyName: `${req.query.company}`
+        })
+        find.companyId = company?.id;
+      }
+
 
       const jobs = await Job
         .find(find)
