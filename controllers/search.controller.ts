@@ -42,6 +42,11 @@ export const search = async (req: Request, res: Response) => {
         find.title = { $regex: `${req.query.keyword}`, $options: "i" };
       }
 
+      if(req.query.position) {
+        find.position = req.query.position;
+      }
+
+
       const jobs = await Job
         .find(find)
         .sort({
