@@ -204,7 +204,7 @@ export const listJob = async (req: AccountRequest, res: Response) => {
 
     // Phân trang
     const page = req.query.page ? parseInt(`${req.query.page}`) : 1;
-    const limit = 10;
+    const limit = 2;
     const skip = (page - 1) * limit;
     const totalRecord = await Job.countDocuments(find);
     const totalPage = Math.ceil(totalRecord/limit);
