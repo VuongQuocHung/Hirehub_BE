@@ -215,7 +215,7 @@ export const listJob = async (req: AccountRequest, res: Response) => {
       .limit(limit)
       .skip(skip)
       .sort({
-        createAt: "desc"
+        createdAt: "desc"
       })
 
     const dataFinal = [];

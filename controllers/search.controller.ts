@@ -91,6 +91,7 @@ export const search = async (req: Request, res: Response) => {
           dataFinal.push(itemFinal);
         }
       }
+      console.log(dataFinal);
     }
 
     res.json({
