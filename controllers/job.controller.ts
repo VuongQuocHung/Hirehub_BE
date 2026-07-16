@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Job from "../models/job.model";
 import AccountCompany from "../models/account-company.model";
+import CV from "../models/cv.model";
 
 export const detail = async (req: Request, res: Response) => {
   try {
@@ -53,6 +54,40 @@ export const detail = async (req: Request, res: Response) => {
       message: "Thành công!",
       jobDetail: jobDetail
     });
+
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Không lấy được dữ liệu!"
+    })
+  }
+}
+
+export const applyPost = async (req: Request, res: Response) => {
+  try {
+      const existCV = await CV.findOne({
+      jobId: req.body.jobId,
+      email: req.body.email
+    })
+
+    if(existCV) {
+      res.json({
+        code: "error",
+        message: "Bạn đã từng nộp CV cho công việc này!"
+      });
+      return;
+    }
+
+    req.body.fileCV = req.file ? req.file.path : "";
+
+    const newRecord = new CV(req.body);
+    await newRecord.save();
+
+    res.json({
+      code: "success",
+      message: "Ứng tuyển thành công!"
+    })
 
   } catch (error) {
     console.log(error);
