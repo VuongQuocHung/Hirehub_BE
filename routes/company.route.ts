@@ -56,6 +56,12 @@ router.delete(
   companyController.deleteJobDel
 )
 
+
+router.get(
+  '/detail/:id', 
+  companyController.detail
+)
+
 router.get('/list', companyController.list);
 
 

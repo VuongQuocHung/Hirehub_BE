@@ -419,5 +419,77 @@ export const list = async (req: AccountRequest, res: Response) => {
     companyList: companyListFinal,
     totalPage: totalPage
   })
+}
 
+export const detail = async (req: AccountRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const companyDetail = await AccountCompany.findOne({
+      _id: id
+    });
+
+    if(!companyDetail) {
+      res.json({
+        code: "error",
+        message: "Không tìm thấy công ty!"
+      });
+      return;
+    }
+
+    const companyDetailFinal = {
+      id: companyDetail.id,
+      logo: companyDetail.logo,
+      companyName: companyDetail.companyName,
+      address: companyDetail.address,
+      companyModel: companyDetail.companyModel,
+      companyEmployees: companyDetail.companyEmployees,
+      workingTime: companyDetail.workingTime,
+      workOvertime: companyDetail.workOvertime,
+      description: companyDetail.description
+    };
+
+    const jobs = await Job
+      .find({
+        companyId: id
+      })
+      .sort({
+        createdAt: "desc"
+      });
+
+    const jobsFinal = [];
+
+    const city = await City.findOne({
+      _id: companyDetail?.city
+    })
+    
+    for(const item of jobs) {
+      const itemFinal = {
+        id: item.id,
+        companyLogo: companyDetail.logo,
+        title: item.title,
+        companyName: companyDetail.companyName,
+        salaryMin: item.salaryMin,
+        salaryMax: item.salaryMax,
+        position: item.position,
+        workingForm: item.workingForm,
+        cityName: city?.name,
+        technologies: item.technologies
+      };
+      jobsFinal.push(itemFinal);
+    }
+
+    res.json({
+      code: "success",
+      message: "Thành công!",
+      companyDetail: companyDetailFinal,
+      jobs: jobsFinal,
+    })
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ!"
+    });
+  }
 }
