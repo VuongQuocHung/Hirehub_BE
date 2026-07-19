@@ -76,6 +76,19 @@ router.get(
   companyController.detailCV
 )
 
+router.patch(
+  '/cv/change-status/:id', 
+  authMiddleware.verifyTokenCompany,
+  companyController.changeStatusPatch
+)
+
+router.delete(
+  '/cv/delete/:id', 
+  authMiddleware.verifyTokenCompany,
+  companyController.deleteCVDel
+)
+
+
 router.get('/list', companyController.list);
 
 

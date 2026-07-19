@@ -627,3 +627,100 @@ export const detailCV = async (req: AccountRequest, res: Response) => {
     });
   }
 }
+
+export const changeStatusPatch = async (req: AccountRequest, res: Response) => {
+  try {
+    const companyId = req.account.id;
+    const cvId = req.params.id;
+    const {status} = req.body;
+
+    const cvDetail = await CV.findOne({
+      _id: cvId,
+    });
+
+    if(!cvDetail){
+      res.json({
+        code: "error",
+        message: "Không tìm thấy CV!"
+      });
+      return;
+    }
+
+    const job = await Job.findOne({
+      _id: cvDetail.jobId,
+      companyId: companyId
+    })
+
+    if(!job) {
+      res.json({
+        code: "error",
+        message: "Không tìm thấy công việc!"
+      });
+      return;
+    }
+    // Cập nhật trạng thái
+    await CV.updateOne({
+      _id: cvId
+    }, {
+      status: status
+    });
+
+    res.json({
+      code: "success",
+      message: "Đã cập nhật trạng thái!"
+    })
+  }  catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ!"
+    });
+  }
+}
+
+export const deleteCVDel = async (req: AccountRequest, res: Response) => {
+  try {
+    const companyId = req.account.id;
+    const cvId = req.params.id;
+
+    const cvDetail = await CV.findOne({
+      _id: cvId
+    })
+
+    if(!cvDetail) {
+      res.json({
+        code: "error",
+        message: "Không tìm thấy CV!"
+      });
+      return;
+    }
+
+    const job = await Job.findOne({
+      _id: cvDetail.jobId,
+      companyId: companyId
+    })
+
+    if(!job) {
+      res.json({
+        code: "error",
+        message: "Không tìm thấy công việc!"
+      });
+      return;
+    }
+    
+    await CV.deleteOne({
+      _id: cvId,
+    });
+
+    res.json({
+      code: "success",
+      message: "Đã xóa CV!"
+    })
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ!"
+    });
+  }
+}
