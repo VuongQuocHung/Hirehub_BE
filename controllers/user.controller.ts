@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import AccountUser from "../models/account-user.model";
 import { AccountRequest } from "../interfaces/request.interface";
+import AccountCompany from "../models/account-company.model";
+import Job from "../models/job.model";
+import CV from "../models/cv.model";
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
@@ -152,6 +155,69 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
       code: "success",
       message: "Cập nhật thành công!"
     });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ!"
+    });
+  }
+}
+
+export const listCV = async (req: AccountRequest, res: Response) => {
+  try {
+    const email = req.account.email;
+
+    const find = {
+      email: email
+    };
+
+    // Phân trang
+    const page = req.query.page ? parseInt(`${req.query.page}`) : 1;
+    const limit = 20;
+    const skip = (page - 1) * limit;
+    const totalRecord = await CV.countDocuments(find);
+    const totalPage = Math.ceil(totalRecord/limit);
+    // Hết Phân trang
+
+    const cvList = await CV
+      .find(find)
+      .limit(limit)
+      .skip(skip)
+      .sort({
+        createdAt: "desc"
+      });
+    const dataFinal = [];
+
+    for(const cv of cvList) {
+      const job = await Job.findOne({
+        _id: cv.jobId
+      })
+
+      const company = await AccountCompany.findOne({
+        _id: job?.companyId
+      })
+
+      const data = {
+        id: cv.id,
+        jobName: job?.title,
+        companyName: company?.companyName,
+        jobSalaryMin: job?.salaryMin,
+        jobSalaryMax: job?.salaryMax,
+        jobPosition: job?.position,
+        jobWorkingForm: job?.workingForm,
+        status: cv.status
+      }
+
+      dataFinal.push(data);
+    }
+
+    res.json({
+      code: "success",
+      message: "Danh sách CV!",
+      cvList: dataFinal,
+      totalPage: totalPage
+    })
   } catch (error) {
     console.log(error);
     res.json({

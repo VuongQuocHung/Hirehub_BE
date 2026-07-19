@@ -19,4 +19,12 @@ router.patch('/profile',
   userValidate.profilePatch,
   userController.profilePatch);
 
+  
+router.get(
+  '/cv/list', 
+  authMiddleware.verifyTokenUser,
+  userController.listCV
+)
+
+
 export default router;
