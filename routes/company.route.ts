@@ -69,6 +69,13 @@ router.get(
   companyController.listCV
 )
 
+
+router.get(
+  '/cv/detail/:id', 
+  authMiddleware.verifyTokenCompany,
+  companyController.detailCV
+)
+
 router.get('/list', companyController.list);
 
 

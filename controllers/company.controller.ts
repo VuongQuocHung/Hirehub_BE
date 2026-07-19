@@ -561,3 +561,69 @@ export const listCV = async (req: AccountRequest, res: Response) =>{
     });
   }
 }
+
+export const detailCV = async (req: AccountRequest, res: Response) => {
+  try {
+    const companyId = req.account.id;
+    const cvId = req.params.id;
+
+    const cvDetail = await CV.findOne({
+      _id: cvId
+    })
+
+    if(!cvDetail){
+      res.json({
+        code: "error",
+        message: "Không tìm thấy CV!"
+      });
+      return;
+    }
+
+    const job = await Job.findOne({
+      _id: cvDetail.jobId,
+      companyId: companyId
+    })
+
+    if(!job) {
+      res.json({
+        code: "error",
+        message: "Không tìm thấy công việc!"
+      });
+      return;
+    }
+
+    const data = {
+      id: cvDetail.id,
+      fullName: cvDetail.fullName,
+      email: cvDetail.email,
+      phone: cvDetail.phone,
+      fileCV: cvDetail.fileCV,
+      jobId: job.id,
+      jobName: job.title,
+      jobSalaryMin: job.salaryMin,
+      jobSalaryMax: job.salaryMax,
+      jobPosition: job.position,
+      jobWorkingForm: job.workingForm,
+      technologies: job.technologies
+    }
+
+    // Cập nhật thành đã xem
+    await CV.updateOne({
+      _id: cvId
+    }, {
+      viewed: true
+    });
+
+    res.json({
+      code: "success",
+      message: "Chi tiết CV!",
+      cvDetail: data
+    })
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ!"
+    });
+  }
+}
