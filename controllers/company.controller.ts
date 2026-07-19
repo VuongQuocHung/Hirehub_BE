@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 import { AccountRequest } from "../interfaces/request.interface";
 import Job from "../models/job.model";
 import City from "../models/city.model";
+import CV from "../models/cv.model";
 
 export const registerPost = async (req: Request, res: Response) => {
   try {
@@ -484,6 +485,73 @@ export const detail = async (req: AccountRequest, res: Response) => {
       message: "Thành công!",
       companyDetail: companyDetailFinal,
       jobs: jobsFinal,
+    })
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ!"
+    });
+  }
+}
+
+export const listCV = async (req: AccountRequest, res: Response) =>{
+  try {
+    const companyId = req.account.id;
+
+    const jobs = await Job.find({
+      companyId: companyId
+    });
+
+    const jobsId = jobs.map(item => item.id);
+
+    const find = {
+      jobId: { $in: jobsId }
+    };
+
+    // Phân trang
+    const page = req.query.page ? parseInt(`${req.query.page}`) : 1;
+    const limit = 20;
+    const skip = (page - 1) * limit;
+    const totalRecord = await CV.countDocuments(find);
+    const totalPage = Math.ceil(totalRecord/limit);
+    // Hết Phân trang
+
+    const cvList = await CV
+      .find(find)
+      .limit(limit)
+      .skip(skip)
+      .sort({
+        createdAt: "desc"
+      });
+    const dataFinal = [];
+
+    for(const cv of cvList) {
+      const job = await Job.findOne({
+        _id: cv.jobId
+      });
+
+      const data = {
+        id: cv.id,
+        jobName: job?.title,
+        fullName: cv.fullName,
+        email: cv.email,
+        phone: cv.phone,
+        jobSalaryMin: job?.salaryMin,
+        jobSalaryMax: job?.salaryMax,
+        jobPosition: job?.position,
+        jobWorkingForm: job?.workingForm,
+        viewed: cv.viewed,
+        status: cv.status
+      }
+      dataFinal.push(data);
+    }
+
+    res.json({
+      code: "success",
+      message: "Danh sách CV!",
+      cvList: dataFinal,
+      totalPage: totalPage
     })
   } catch (error) {
     console.log(error);
