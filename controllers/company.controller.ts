@@ -91,9 +91,12 @@ export const loginPost = async (req: Request, res: Response) => {
     )
     res.cookie("token", token, {
       maxAge: (1 * 24 * 60 * 60 * 1000) * 7, // 7 ngày
-      httpOnly: true, // Chỉ cho phép cookie được truy cận bởi server
-      sameSite: 'lax', // cho phép truy cập khi khác tên miền
-      secure: process.env.NODE_ENV === 'production' ? true : false // true: web là https, false: web là http
+      httpOnly: true, // JavaScript trên trình duyệt không thể đọc token
+      // Frontend gọi backend qua /api cùng domain nên Lax vừa đủ an toàn,
+      // không cần bật cookie của bên thứ ba bằng SameSite=None.
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production", // Chỉ gửi qua HTTPS khi deploy
+      path: "/"
     })
 
     res.json({
@@ -148,9 +151,10 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
 
     res.cookie("token", token, {
       maxAge: (1 * 24 * 60 * 60 * 1000), // 1 ngày
-      httpOnly: true, // Chỉ cho phép cookie được truy cập bởi server
-      sameSite: "lax", // Cho phép gửi cookie gữa các tên miền khác nhau
-      secure: process.env.NODE_ENV === "production" ? true : false // true: web là https, false: web là http
+      httpOnly: true, // JavaScript trên trình duyệt không thể đọc token
+      sameSite: "lax", // Request đi qua /api cùng domain frontend
+      secure: process.env.NODE_ENV === "production", // Chỉ gửi qua HTTPS khi deploy
+      path: "/"
     });
     res.json({
       code: "success",
