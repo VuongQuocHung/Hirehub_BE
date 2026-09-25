@@ -6,6 +6,7 @@ import { AccountRequest } from "../interfaces/request.interface";
 import Job from "../models/job.model";
 import City from "../models/city.model";
 import CV from "../models/cv.model";
+import { sanitizeRichText } from "../helpers/sanitize-html.helper";
 
 export const registerPost = async (req: Request, res: Response) => {
   try {
@@ -131,6 +132,7 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
     }
 
     req.body.logo = req.file ? req.file.path : "";
+    req.body.description = sanitizeRichText(req.body.description);
 
     await AccountCompany.updateOne({
       _id: req.account._id
@@ -175,6 +177,7 @@ export const createJobPost = async (req: AccountRequest, res: Response) => {
     req.body.salaryMin = req.body.salaryMin ? parseInt(req.body.salaryMin) : 0;
     req.body.salaryMax = req.body.salaryMax ? parseInt(req.body.salaryMax) : 0;
     req.body.technologies = req.body.technologies ? req.body.technologies.split(", ") : [];
+    req.body.description = sanitizeRichText(req.body.description);
     req.body.images = [];
     if (req.files) {
       for (const item of req.files as any[]) {
@@ -279,6 +282,9 @@ export const editJob = async (req: AccountRequest, res: Response) => {
       return;
     }
 
+    // Làm sạch cả dữ liệu cũ trước khi trả về trình soạn thảo TinyMCE.
+    jobDetail.description = sanitizeRichText(jobDetail.description);
+
     res.json({
       code: "success",
       message: "Thành công!",
@@ -317,6 +323,7 @@ export const editJobPatch = async (req: AccountRequest, res: Response) => {
     req.body.salaryMin = req.body.salaryMin ? parseInt(req.body.salaryMin) : 0;
     req.body.salaryMax = req.body.salaryMax ? parseInt(req.body.salaryMax) : 0;
     req.body.technologies = req.body.technologies ? req.body.technologies.split(", ") : [];
+    req.body.description = sanitizeRichText(req.body.description);
     req.body.images = [];
     if(req.files) {
       for(const item of req.files as any[]) {
@@ -451,7 +458,8 @@ export const detail = async (req: AccountRequest, res: Response) => {
       companyEmployees: companyDetail.companyEmployees,
       workingTime: companyDetail.workingTime,
       workOvertime: companyDetail.workOvertime,
-      description: companyDetail.description
+      // Làm sạch dữ liệu cũ trước khi frontend render bằng dangerouslySetInnerHTML.
+      description: sanitizeRichText(companyDetail.description)
     };
 
     const jobs = await Job

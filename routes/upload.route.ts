@@ -1,12 +1,16 @@
 import { Router } from "express";
-import multer from 'multer';
-import { storage } from "../helpers/cloudinary.helper";
 import * as uploadController from "../controllers/upload.controller";
-
-const upload = multer({ storage: storage });
+import * as authMiddleware from "../middlewares/auth.middleware";
+import { uploadSingleImage } from "../middlewares/upload.middleware";
 
 const router = Router();
 
-router.post('/image', upload.single('file'), uploadController.imagePost);
+router.post(
+  '/image',
+  // Chỉ doanh nghiệp đã đăng nhập mới được upload ảnh từ TinyMCE.
+  authMiddleware.verifyTokenCompany,
+  uploadSingleImage('file'),
+  uploadController.imagePost
+);
 
-export default router;  
+export default router;

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Job from "../models/job.model";
 import AccountCompany from "../models/account-company.model";
 import CV from "../models/cv.model";
+import { sanitizeRichText } from "../helpers/sanitize-html.helper";
 
 export const detail = async (req: Request, res: Response) => {
   try {
@@ -40,7 +41,8 @@ export const detail = async (req: Request, res: Response) => {
       workingForm: record.workingForm,
       companyAddress: companyInfo.address,
       technologies: record.technologies,
-      description: record.description,
+      // Frontend render trường này dưới dạng HTML nên luôn làm sạch trước.
+      description: sanitizeRichText(record.description),
       companyId: record.companyId,
       companyLogo: companyInfo.logo,
       companyModel: companyInfo.companyModel,
@@ -66,7 +68,16 @@ export const detail = async (req: Request, res: Response) => {
 
 export const applyPost = async (req: Request, res: Response) => {
   try {
-      const existCV = await CV.findOne({
+    // Không tin vào validation ở frontend vì người dùng có thể gọi API trực tiếp.
+    if (!req.file) {
+      res.status(400).json({
+        code: "error",
+        message: "Vui lòng tải lên CV dạng PDF!"
+      });
+      return;
+    }
+
+    const existCV = await CV.findOne({
       jobId: req.body.jobId,
       email: req.body.email
     })
@@ -79,7 +90,7 @@ export const applyPost = async (req: Request, res: Response) => {
       return;
     }
 
-    req.body.fileCV = req.file ? req.file.path : "";
+    req.body.fileCV = req.file.path;
 
     const newRecord = new CV(req.body);
     await newRecord.save();

@@ -2,10 +2,10 @@ import { Router } from "express";
 import * as companyController from '../controllers/company.controller'
 import * as companyValidate from '../validates/company.validate';
 import * as authMiddleware from '../middlewares/auth.middleware'
-import multer from 'multer';
-import { storage } from "../helpers/cloudinary.helper";
-
-const upload = multer({ storage: storage });
+import {
+  uploadImageArray,
+  uploadSingleImage
+} from '../middlewares/upload.middleware';
 
 const router = Router();
 
@@ -15,16 +15,16 @@ router.post('/login', companyValidate.loginPost, companyController.loginPost);
 
 router.patch(
   '/profile',
-  upload.single('logo'),
   authMiddleware.verifyTokenCompany,
+  uploadSingleImage('logo'),
   companyValidate.profilePatch,
   companyController.profilePatch,
 )
 
 router.post(
   '/job/create',
-  upload.array('images', 5),
   authMiddleware.verifyTokenCompany,
+  uploadImageArray('images', 5),
   companyValidate.createJobPost,
   companyController.createJobPost
 )
@@ -37,15 +37,14 @@ router.get(
 
 router.get(
   '/job/edit/:id',
-  upload.array('images', 8), 
   authMiddleware.verifyTokenCompany,
   companyController.editJob
 )
 
 router.patch(
   '/job/edit/:id', 
-  upload.array('images', 8), 
   authMiddleware.verifyTokenCompany,
+  uploadImageArray('images', 8),
   companyValidate.createJobPost, 
   companyController.editJobPatch
 )

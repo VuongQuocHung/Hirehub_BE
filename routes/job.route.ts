@@ -1,9 +1,6 @@
 import { Router } from "express";
 import * as jobController from '../controllers/job.controller';
-import multer from 'multer';
-import { storage } from "../helpers/cloudinary.helper";
-
-const upload = multer({ storage: storage });
+import { uploadSinglePdf } from '../middlewares/upload.middleware';
 
 const router = Router();
 
@@ -11,7 +8,7 @@ router.get('/detail/:id', jobController.detail);
 
 router.post(
   '/apply', 
-  upload.single('fileCV'), 
+  uploadSinglePdf('fileCV'),
   jobController.applyPost
 );
 

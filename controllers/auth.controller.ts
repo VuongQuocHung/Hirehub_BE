@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import jwt from 'jsonwebtoken'
 import AccountUser from "../models/account-user.model";
 import AccountCompany from "../models/account-company.model";
+import { sanitizeRichText } from "../helpers/sanitize-html.helper";
 
 export const check = async (req: Request, res: Response) => {
   try {
@@ -66,7 +67,7 @@ export const check = async (req: Request, res: Response) => {
         workingTime: existAccount.workingTime,
         workOvertime: existAccount.workOvertime,
         phone: existAccount.phone,
-        description: existAccount.description,
+        description: sanitizeRichText(existAccount.description),
         logo: existAccount.logo
       }
 
