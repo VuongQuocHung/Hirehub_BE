@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "nodemon index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@types/cookie-parser": "^1.4.10",
@@ -31,8 +34,13 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.2",
     "@types/sanitize-html": "^2.16.1",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.0.2",
     "nodemon": "^3.1.14",
+    "supertest": "^7.3.0",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
   }
 }

@@ -1,38 +1,16 @@
-import dotenv from 'dotenv'
-dotenv.config()
-import express, { Request, Response } from 'express'
-import cors from 'cors'
-import routes from './routes/index.route'
-import { connectDB } from './configs/database.config'
-import cookieParser from 'cookie-parser'
+import "dotenv/config";
+import app from "./app";
+import { connectDB } from "./configs/database.config";
 
-// Kết nối đến MongoDB
-connectDB();
-
-const app = express()
 const port = process.env.PORT || 4000;
 
-// Cấu hình CORS 
-app.use(cors({
-  origin: process.env.DOMAIN_FE, // Sử dụng biến môi trường
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Cho phép các phương thức HTTP cần thiết
-  allowedHeaders: ['Content-Type', 'Authorization'], // Cho phép các header cần thiết
-  credentials: true
-}))
+// File index chỉ chịu trách nhiệm kết nối database và khởi động server.
+const startServer = async () => {
+  await connectDB();
 
-// Cho phép gửi data dang JSON trong body của request
-app.use(express.json());
+  app.listen(port, () => {
+    console.log(`Website đang chạy trên cổng ${port}`);
+  });
+};
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
-})
-
-// Sử dụng cookie-parser để phân tích cookie từ request
-app.use(cookieParser());
-
-// Thiết lập đường dẫn
-app.use("/", routes);
-
-app.listen(port, () => {
-  console.log(`Website đang chạy trên cổng ${port}`)
-})
+startServer();
